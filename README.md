@@ -1,7 +1,7 @@
 # eerie-pink-kitten
 This is a shit from Gemini. Use it at your own risk.
 
-This shit has great potential; modifications are recommended.
+This shit has great potential, modifications are recommended.
 
 <img width="1080" height="1920" alt="96ba9fd25f29f1120486e0c22c055daa" src="https://github.com/user-attachments/assets/a615d1bc-748e-46e7-a035-ca45728a7c2a" />
 
