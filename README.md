@@ -1,7 +1,11 @@
 # eerie-pink-kitten
-This is a shit from Gemini. Use it at your own risk.
+This is a shit from Gemini 3.1 pro. Use it at your own risk.
 
-This shit has great potential, modifications are recommended.
+Version 2.0 now has a serious problem: running the "Live2Dpet.exe" file causes .lnk files on your computer to mysteriously disappear after a period of time. It seems it has truly become a computer virus. 😅
+
+However, after checking, I found that the .lnk file was simply moved to the recycle bin, so there's no need to worry.
+
+so, the shit still has great potential, Improvements are still recommended.
 
 
 <img width="2510" height="1384" alt="屏幕截图 2026-07-16 195014" src="https://github.com/user-attachments/assets/fa2c4e05-dc6c-4921-8fca-3d1a01a29398" />
