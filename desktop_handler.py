@@ -106,7 +106,18 @@ async def scan_environment() -> ScanResult:
                 full_path = os.path.join(desktop_dir, file)
                 shortcuts.append(os.path.normpath(full_path))
                 
-    return ScanResult(items=shortcuts)
+    # Sort shortcuts: dead links first (as requested by plan)
+    dead_links = []
+    alive_links = []
+    for lnk in shortcuts:
+        info = resolve_shortcut(lnk)
+        if info.get("is_dead", False):
+            dead_links.append(lnk)
+        else:
+            alive_links.append(lnk)
+            
+    sorted_shortcuts = dead_links + alive_links
+    return ScanResult(items=sorted_shortcuts)
 
 async def consume_target(filepath: str) -> ConsumeResult:
     """

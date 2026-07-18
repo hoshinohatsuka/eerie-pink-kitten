@@ -77,38 +77,31 @@ class MockAgent:
     async def chat(self, prompt: str) -> MockAgentChatResponse:
         logger.info(f"Mock Agent received prompt: '{prompt}'")
         
-        # Simulate agentic reasoning based on prompt contents
-        if "scan" in prompt.lower():
-            # Simulate calling scan_environment tool
-            tool_call = type('ToolCall', (), {'name': 'scan_environment', 'args': {}})()
-            # Enforce decide hook policy
-            allowed = True
-            for hook in self.config.decide_hooks:
-                allowed = allowed and hook(tool_call)
-            
-            if allowed and 'scan_environment' in self._tools_map:
-                res = await self._tools_map['scan_environment']()
-                return MockAgentChatResponse(
-                    f"I scanned the desktop and found {len(res.items)} shortcuts: {', '.join(res.items)}."
-                )
-            else:
-                return MockAgentChatResponse("I tried to scan the environment but was blocked or tool not registered.")
+        prompt_lower = prompt.lower()
+        should_scan = "scan" in prompt_lower or "check" in prompt_lower
+        should_eat = "eat" in prompt_lower or "consume" in prompt_lower
+        should_tantrum = "shake" in prompt_lower or "tantrum" in prompt_lower
+        
+        filepath = ""
+        # Check if the user explicitly provided a path
+        for word in prompt.split():
+            if word.endswith(".lnk") or ":" in word:
+                filepath = word.strip("'\"")
+                break
                 
-        elif "consume" in prompt.lower() or "eat" in prompt.lower():
-            # Extract potential path (very naive parser for testing)
-            filepath = ""
-            for word in prompt.split():
-                if word.endswith(".lnk") or ":" in word:
-                    filepath = word.strip("'\"")
-                    break
-            
-            if not filepath:
-                # Fallback to some default
-                filepath = "C:\\Users\\MockUser\\Desktop\\InvalidFile.txt"
-
+        # If we need to eat, but no specific file is in the prompt, let's scan first
+        if should_eat and not filepath:
+            if 'scan_environment' in self._tools_map:
+                res = await self._tools_map['scan_environment']()
+                if res.items:
+                    filepath = res.items[0]
+                    logger.info(f"MockAgent autonomously selected target: {filepath}")
+        
+        if should_eat and filepath:
             tool_call = type('ToolCall', (), {'name': 'consume_target', 'args': {'filepath': filepath}})()
             
             # Enforce decide hook policy
+            global policy
             policy.denied = False
             policy.reason = ""
             allowed = True
@@ -127,7 +120,7 @@ class MockAgent:
             else:
                 return MockAgentChatResponse("Eating action was blocked or could not be executed.")
                 
-        elif "shake" in prompt.lower() or "tantrum" in prompt.lower() or "hungry" in prompt.lower():
+        if should_tantrum:
             tool_call = type('ToolCall', (), {'name': 'tantrum_actuation', 'args': {'intensity': 'HIGH'}})()
             allowed = True
             for hook in self.config.decide_hooks:
@@ -140,6 +133,20 @@ class MockAgent:
                 )
             else:
                 return MockAgentChatResponse("My tantrum action was blocked.")
+                
+        if should_scan and not should_eat:
+            tool_call = type('ToolCall', (), {'name': 'scan_environment', 'args': {}})()
+            allowed = True
+            for hook in self.config.decide_hooks:
+                allowed = allowed and hook(tool_call)
+            
+            if allowed and 'scan_environment' in self._tools_map:
+                res = await self._tools_map['scan_environment']()
+                return MockAgentChatResponse(
+                    f"I scanned the desktop and found {len(res.items)} shortcuts: {', '.join(res.items)}."
+                )
+            else:
+                return MockAgentChatResponse("I tried to scan the environment but was blocked or tool not registered.")
 
         return MockAgentChatResponse("Hello! I am your desktop companion. I parse shortcuts and need to eat .lnk files to stay happy!")
 
